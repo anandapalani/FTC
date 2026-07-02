@@ -1,0 +1,79 @@
+spring:
+  application:
+    name: cloud-native-product-registry
+
+  # ── H2 Database Configuration ─────────────────────────────────────────────
+  #
+  # TWO MODES — uncomment ONE block at a time:
+  #
+  # MODE 1: IN-MEMORY (default — active below)
+  # ─────────────────────────────────────────
+  # Data lives only while the JVM is running.
+  # Every restart wipes the database clean.
+  # Liquibase re-runs all changesets and re-seeds on each boot.
+  # Use this to demonstrate: Liquibase migration lifecycle,
+  # stateless app design, and "why do I need a persistent store?"
+  #
+  datasource:
+    url: jdbc:h2:mem:productdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  #
+  # MODE 2: FILE-BASED (persistent — swap in to retain data across restarts)
+  # ─────────────────────────────────────────────────────────────────────────
+  # Data is written to ./data/productdb.mv.db on disk.
+  # Products added via the UI survive application restarts.
+  # Liquibase tracks applied changesets in DATABASECHANGELOG —
+  # it will NOT re-run already-applied migrations (including seed data).
+  # Use this to demonstrate: persistent local dev workflow,
+  # Liquibase changeset tracking, and idempotent migrations.
+  #
+  # To switch to file-based:
+  #   1. Comment out the datasource block above (Mode 1)
+  #   2. Uncomment the datasource block below (Mode 2)
+  #   3. Restart the app — a ./data/ folder will be created automatically
+  #
+  # datasource:
+  #   url: jdbc:h2:file:./data/productdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
+  #   driver-class-name: org.h2.Driver
+  #   username: sa
+  #   password: ""
+  #
+
+  # ── H2 web console ────────────────────────────────────────────────────────────
+  # Available at http://localhost:8081/h2-console during local dev.
+  # H2 Console JDBC URL:
+  #   Mode 1 (in-memory):  jdbc:h2:mem:productdb
+  #   Mode 2 (file-based): jdbc:h2:file:./data/productdb
+  # Username: sa  |  Password: (leave blank)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # ── JPA / Hibernate ──────────────────────────────────────────────────────────
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: none          # Liquibase owns the schema — Hibernate must not touch it
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # ── Liquibase ─────────────────────────────────────────────────────────────────
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+# ── Server ────────────────────────────────────────────────────────────────────
+server:
+  port: 8081
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+logging:
+  level:
+    com.bells: DEBUG
+    liquibase: INFO
+    org.hibernate.SQL: DEBUG

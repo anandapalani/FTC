@@ -12,6 +12,9 @@ target/
 .DS_Store
 Thumbs.db
 
+# Office temp files
+~$*
+
 # Log files
 *.log
 

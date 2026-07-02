@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Product Registry</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f4f6f8;
+            color: #1b2a4a;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #1b2a4a;
+            color: #fff;
+            padding: 1.2rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        header h1 { font-size: 1.4rem; font-weight: 700; }
+        header span { color: #00b4d8; font-size: 0.9rem; }
+
+        main { max-width: 960px; margin: 2rem auto; padding: 0 1.5rem; }
+
+        /* ── Flash messages ── */
+        .flash {
+            padding: 0.85rem 1.2rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        .flash.success { background: #e6f7fb; border-left: 4px solid #00b4d8; color: #0e5a6e; }
+        .flash.error   { background: #fdecea; border-left: 4px solid #e74c3c; color: #7b1d1d; }
+
+        /* ── Card ── */
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(27,42,74,.08);
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+        }
+        .card h2 {
+            font-size: 1.05rem;
+            color: #00b4d8;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: 1.2rem;
+        }
+
+        /* ── Form ── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 3fr 1fr auto;
+            gap: .75rem;
+            align-items: start;
+        }
+        @media (max-width: 680px) { .form-grid { grid-template-columns: 1fr; } }
+
+        label { display: block; font-size: .8rem; color: #666; margin-bottom: .25rem; }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: .55rem .8rem;
+            border: 1.5px solid #ccd6e0;
+            border-radius: 6px;
+            font-size: .95rem;
+            transition: border-color .2s;
+        }
+        input:focus { outline: none; border-color: #00b4d8; }
+
+        .field-error { color: #e74c3c; font-size: .78rem; margin-top: .2rem; }
+
+        button[type="submit"] {
+            padding: .58rem 1.4rem;
+            background: #00b4d8;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: .95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s;
+            white-space: nowrap;
+        }
+        button[type="submit"]:hover { background: #0090b0; }
+
+        /* ── Table ── */
+        table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+        thead tr { background: #1b2a4a; color: #fff; }
+        thead th { padding: .75rem 1rem; text-align: left; font-weight: 600; }
+        tbody tr { border-bottom: 1px solid #eef0f5; }
+        tbody tr:hover { background: #f8fafb; }
+        td { padding: .7rem 1rem; vertical-align: middle; }
+        td.price { font-variant-numeric: tabular-nums; }
+        td.date  { color: #888; font-size: .85rem; }
+
+        .badge {
+            display: inline-block;
+            background: #e6f7fb;
+            color: #00b4d8;
+            font-size: .75rem;
+            font-weight: 700;
+            padding: .15rem .55rem;
+            border-radius: 20px;
+        }
+
+        .btn-delete {
+            padding: .3rem .8rem;
+            background: transparent;
+            color: #e74c3c;
+            border: 1.5px solid #e74c3c;
+            border-radius: 5px;
+            font-size: .82rem;
+            cursor: pointer;
+            transition: background .2s, color .2s;
+        }
+        .btn-delete:hover { background: #e74c3c; color: #fff; }
+
+        .empty { text-align: center; padding: 2.5rem; color: #aaa; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Cloud-Native Product Registry</h1>
+    <span>Spring Boot · Thymeleaf · JPA · Liquibase · H2</span>
+</header>
+
+<main>
+
+    <!-- Flash messages -->
+    <div th:if="${successMessage}" class="flash success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}"   class="flash error"   th:text="${errorMessage}"></div>
+
+    <!-- ── Add Product Form ──────────────────────────────────────────────── -->
+    <div class="card">
+        <h2>Register New Product</h2>
+        <form th:action="@{/web/products}" th:object="${newProduct}" method="post">
+            <div class="form-grid">
+                <div>
+                    <label for="name">Product Name *</label>
+                    <input type="text" id="name" th:field="*{name}" placeholder="e.g. Widget Pro"/>
+                    <div class="field-error" th:if="${#fields.hasErrors('name')}"
+                         th:errors="*{name}"></div>
+                </div>
+                <div>
+                    <label for="description">Description</label>
+                    <input type="text" id="description" th:field="*{description}"
+                           placeholder="Optional short description"/>
+                </div>
+                <div>
+                    <label for="price">Price (SGD) *</label>
+                    <input type="number" id="price" th:field="*{price}"
+                           step="0.01" min="0.01" placeholder="0.00"/>
+                    <div class="field-error" th:if="${#fields.hasErrors('price')}"
+                         th:errors="*{price}"></div>
+                </div>
+                <div style="padding-top:1.4rem">
+                    <button type="submit">Add Product</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- ── Product Table ─────────────────────────────────────────────────── -->
+    <div class="card">
+        <h2>Registered Products
+            <span class="badge" th:text="${products.size()} + ' total'"></span>
+        </h2>
+
+        <div th:if="${products.empty}" class="empty">
+            No products registered yet. Use the form above to add one.
+        </div>
+
+        <table th:unless="${products.empty}">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price (SGD)</th>
+                    <th>Registered At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="product, stat : ${products}">
+                    <td th:text="${stat.index + 1}"></td>
+                    <td th:text="${product.name}"></td>
+                    <td th:text="${product.description ?: '—'}"></td>
+                    <td class="price" th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}"></td>
+                    <td class="date"
+                        th:text="${#temporals.format(product.createdAt, 'dd MMM yyyy HH:mm')}"></td>
+                    <td>
+                        <form th:action="@{/web/products/{id}/delete(id=${product.id})}"
+                              method="post"
+                              onsubmit="return confirm('Delete ' + [[${product.name}]] + '?')">
+                            <button type="submit" class="btn-delete">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p style="text-align:center; color:#aaa; font-size:.8rem; margin-top:1rem;">
+        H2 Console available at
+        <a href="/h2-console" target="_blank" style="color:#00b4d8;">/h2-console</a>
+        (local dev only)
+    </p>
+
+</main>
+</body>
+</html>
