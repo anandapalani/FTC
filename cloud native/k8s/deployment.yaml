@@ -22,7 +22,7 @@ spec:
         fsGroup: 1001
       containers:
         - name: product-registry
-          image: product-registry:1.0.0
+          image: cloud-native-registry:1.0.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
