@@ -14,11 +14,11 @@ spring:
   # Use this to demonstrate: Liquibase migration lifecycle,
   # stateless app design, and "why do I need a persistent store?"
   #
-  datasource:
-    url: jdbc:h2:mem:productdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
+  # datasource:
+  #   url: jdbc:h2:mem:productdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+  #   driver-class-name: org.h2.Driver
+  #   username: sa
+  #   password: ""
   #
   # MODE 2: FILE-BASED (persistent — swap in to retain data across restarts)
   # ─────────────────────────────────────────────────────────────────────────
@@ -26,21 +26,18 @@ spring:
   # Products added via the UI survive application restarts.
   # Liquibase tracks applied changesets in DATABASECHANGELOG —
   # it will NOT re-run already-applied migrations (including seed data).
-  # Use this to demonstrate: persistent local dev workflow,
-  # Liquibase changeset tracking, and idempotent migrations.
   #
-  # To switch to file-based:
-  #   1. Comment out the datasource block above (Mode 1)
-  #   2. Uncomment the datasource block below (Mode 2)
-  #   3. Restart the app — a ./data/ folder will be created automatically
+  # To switch back to in-memory:
+  #   1. Comment out the datasource block below (Mode 2)
+  #   2. Uncomment the datasource block above (Mode 1)
+  #   3. Restart the app
   #
-  # datasource:
-  #   url: jdbc:h2:file:./data/productdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
-  #   driver-class-name: org.h2.Driver
-  #   username: sa
-  #   password: ""
-  #
-
+  datasource:
+    url: jdbc:h2:file:./data/productdb;DB_CLOSE_DELAY=-1;
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+    
   # ── H2 web console ────────────────────────────────────────────────────────────
   # Available at http://localhost:8081/h2-console during local dev.
   # H2 Console JDBC URL:
