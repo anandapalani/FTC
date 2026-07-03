@@ -33,7 +33,7 @@ spring:
   #   3. Restart the app
   #
   datasource:
-    url: jdbc:h2:file:./data/productdb;DB_CLOSE_DELAY=-1;
+    url: jdbc:h2:mem:productdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password: ""
@@ -66,7 +66,20 @@ spring:
 
 # ── Server ────────────────────────────────────────────────────────────────────
 server:
-  port: 8081
+  port: 8080
+
+# ── Actuator ──────────────────────────────────────────────────────────────────
+management:
+  health:
+    probes:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 logging:
